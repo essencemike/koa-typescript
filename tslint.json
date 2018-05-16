@@ -1,0 +1,12 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+      // "tslint-microsoft-contrib"
+  ],
+  "jsRules": {},
+  "rules": {
+      "no-increment-decrement": false,
+      "prefer-for-of": true,
+      "max-line-length": [true, 180]
+  }
+}

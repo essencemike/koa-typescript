@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "target": "es6",
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "preserveConstEnums": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": true,
+    "inlineSources": false,
+    "lib": ["es2015", "es2017"],
+    "rootDir": "./src"
+  },
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
