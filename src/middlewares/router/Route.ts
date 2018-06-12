@@ -2,7 +2,9 @@ import * as Koa from 'koa';
 import * as Router from 'koa-router';
 import { RouteMap } from '../../types/router';
 
-const router = new Router();
+const router = new Router({
+  prefix: '/api',
+});
 
 export const symbolRoutePrefix: symbol = Symbol('routePrefix');
 
@@ -46,12 +48,17 @@ export class Route {
     Route.__DecoratedRouters.forEach((controller, config) => {
       let controllers = Array.isArray(controller) ? controller : [controller];
       let prefixPath = config.target[symbolRoutePrefix];
+      let path = config.path;
 
       if (prefixPath && (!prefixPath.startsWith('/'))) {
-        prefixPath = '/' + prefixPath;
+        prefixPath = `/${prefixPath}`;
       }
 
-      let routerPath = prefixPath + config.path;
+      if (path && !path.startsWith('/')) {
+        path = `/${path}`;
+      }
+
+      let routerPath = prefixPath + path;
       if (config.unless) {
         unlessPath.push(routerPath);
       }

@@ -17,5 +17,6 @@
     "lib": ["es2015", "es2017"],
     "rootDir": "./src"
   },
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "include": ["./Webpack.config.ts"]
 }

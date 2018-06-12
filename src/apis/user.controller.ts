@@ -1,5 +1,5 @@
 import * as Koa from 'koa';
-import { router, required, prefix, convert, log } from '../middlewares/router';
+import { Get, required, Controller, convert, log } from '../middlewares/router';
 
 // 测试中间件
 async function someFun(ctx: Koa.Context, next: any) {
@@ -7,14 +7,13 @@ async function someFun(ctx: Koa.Context, next: any) {
   await next();
 }
 
-@prefix('/api')
-class UserController {
+@Controller('user')
+export default class UserController {
 
-  @router({
-    method: 'get',
-    path: '/user',
-  })
+  @Get(':id')
+  @required({ params: 'id' })
   @log
+  @convert(someFun)
   async getUser(ctx: Koa.Context): Promise<void> {
     ctx.success({
       data: {
@@ -25,5 +24,3 @@ class UserController {
     });
   }
 }
-
-export default UserController;

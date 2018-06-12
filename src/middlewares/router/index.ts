@@ -1,66 +1,11 @@
 import * as Koa from 'koa';
 import chalk from 'chalk';
 import { symbolRoutePrefix, Route } from './Route';
-import { RouteConfig } from '../../types/router';
+import { RouteConfig, RouteBaseConfig } from '../../types/router';
+import { requireDescriptor, sureIsArray, decorate } from '../../lib';
+import { RequestMethod } from '../../types/enums/request-method.enum';
 
 let requestID = 0;
-
-function sureIsArray(arr: any) {
-  return Array.isArray(arr) ? arr : [arr];
-}
-
-function isDescriptor(desc: PropertyDescriptor | Function): boolean {
-  if (!desc || !desc.hasOwnProperty) return false;
-
-  for (let key of ['value', 'initializer', 'get', 'set']) {
-    if (desc.hasOwnProperty(key)) return true;
-  }
-  
-  return false;
-}
-
-function last(arr: Array<Function>): Function | PropertyDescriptor {
-  return arr[arr.length - 1];
-}
-
-function requireDescriptor(target: any, name: string, descriptor: PropertyDescriptor, rules: any) {
-  async function middleware(ctx: Koa.Context, next: any) {
-    if (rules.query) {
-      rules.query = sureIsArray(rules.query);
-
-      for (let name of rules.query) {
-        if (!ctx.query[name]) {
-          ctx.throw(412, `GET Request query: ${name} required`);
-        }
-      }
-    }
-
-    if (rules.params) {
-      rules.params = sureIsArray(rules.params);
-
-      for (let name of rules.params) {
-        if (!ctx.params[name]) {
-          ctx.throw(412, `GET Request params: ${name} required`);
-        }
-      }
-    }
-
-    await next();
-  }
-
-  target[name] = sureIsArray(target[name]);
-  target[name].splice(target[name].length - 1, 0, middleware);
-
-  return descriptor;
-}
-
-function decorate(handleDescriptor: Function, entryArgs: Array<Function>) {
-  if (isDescriptor(last(entryArgs))) return handleDescriptor(entryArgs);
-
-  return function () {
-    return handleDescriptor(...Array.from(arguments), ...entryArgs);
-  }
-}
 
 /**
  * url参数
@@ -76,31 +21,54 @@ export function required(args: any) {
 
 /**
  * 添加静态属性
- * @prefix('/user')
+ * @Controller('user')
  */
-export function prefix(prefix: string) {
+export function Controller(prefix: string = '/' ) {
   return (target: any) => {
-    target.prototype[symbolRoutePrefix] = prefix
+    target.prototype[symbolRoutePrefix] = prefix;
   };
 }
 
 /**
  * 路由
- * @router({
+ * @Router({
  *   method: 'get',
  *   path: '/login/:id'
  * })
  */
-export function router(config: RouteConfig) {
+export function Router(path: string = '', config: RouteConfig) {
   return (target: any, name: string) => {
     Route.__DecoratedRouters.set({
       target,
-      path: config.path,
+      path,
       method: config.method,
       unless: config.unless,
     }, target[name]);
   }
 }
+
+const createMappingDecorator = (method: RequestMethod) => (
+  path?: string,
+  config?: RouteBaseConfig,
+) => {
+  const mergeConfig: RouteConfig = { ...config, method };
+  return Router(path, mergeConfig);
+};
+
+// Routes HTTP GET requests to the specified path
+export const Get = createMappingDecorator(RequestMethod.GET);
+
+// Routes HTTP POST requests to the specified path
+export const Post = createMappingDecorator(RequestMethod.POST);
+
+// Routes HTTP PUT requests to the specified path
+export const Put = createMappingDecorator(RequestMethod.PUT);
+
+// Routes HTTP DELETE requests to the specified path
+export const Delete = createMappingDecorator(RequestMethod.DELETE);
+
+// Routes HTTP PATCH requests to the specified path
+export const Patch = createMappingDecorator(RequestMethod.PATCH);
 
 /**
  * 修饰方法

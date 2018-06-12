@@ -23,7 +23,7 @@ class WebpackConfig implements Configuration {
   module = {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         use: [
           { loader: 'babel-loader' },
           {
@@ -37,7 +37,7 @@ class WebpackConfig implements Configuration {
         exclude: /node_modules/,
       },
       {
-        test: /\.jsx?$/,
+        test: /\.js$/,
         use: 'babel-loader',
         exclude: /node_modules/,
       }
